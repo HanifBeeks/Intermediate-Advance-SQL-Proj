@@ -1,0 +1,59 @@
+Select * from `global-env-355411.ll_.__`;
+
+/* Select Data that we are going to be using */
+
+Select Mode_of_Shipment, Customer_rating, Product_importance, Gender, Prior_purchases, Reached_on_Time_Y_N
+from `global-env-355411.ll_.__`
+order by 1, 2;
+
+/* Looking at Total Shipments that arrived ontime vs those that didn't
+(1= Has not been reached ontime and 0= Has been reached ontime) */
+
+Select product_importance, Count(Reached_on_Time_Y_N) as Count_notOntime
+from `global-env-355411.ll_.__`
+Where Reached_on_Time_Y_N = 1
+GROUP BY Product_importance
+Order BY Count_notOntime desc;
+
+-- Use Case WHEN Statement
+
+SELECT Product_importance,
+  Case WHEN reached_on_time_Y_N = 1 THEN 'PRODUCT DID NOT DELIVER ON TIME'
+    WHEN reached_on_time_y_n = 0 THEN 'PRODUCT WAS DELIVERED ON TIME'
+    ELSE NULL END as d_time, warehouse_block
+    from `global-env-355411.ll_.__`
+    ORDER BY Product_importance, d_time;
+
+
+  -- Which warehouse had the most late deliveries also how many customer ratings they had from 1-3 and which warehouse had the most
+  
+  SELECT warehouse_block, Count(Customer_rating) as cust_rate_123
+  from `global-env-355411.ll_.__`
+  Where Customer_rating IN (1,2,3) AND Reached_on_Time_Y_N = 1
+  GROUP BY Warehouse_block
+  ORDER BY cust_rate_123 desc;
+
+-- Looking at the total customer rating from 1-3 with late deliveries using Partitioning BY 
+
+  SELECT Distinct warehouse_block, Count(Customer_rating) OVER (PARTITION by Warehouse_block order by Mode_of_Shipment), customer_rating, Mode_of_Shipment
+  from `global-env-355411.ll_.__`
+  Where Customer_rating IN (1,2,3) AND Reached_on_Time_Y_N = 1
+ ;
+
+-- USING CTE + Join to find the Number of shipments that delivered ontime and those that didn't
+
+ WITH CTE as (
+   SELECT Product_importance, id, Warehouse_block,
+  Case WHEN reached_on_time_Y_N = 1 THEN 'PRODUCT DID NOT DELIVER ON TIME'
+    WHEN reached_on_time_y_n = 0 THEN 'PRODUCT WAS DELIVERED ON TIME'
+    ELSE NULL END as d_time, warehouse_block
+    from `global-env-355411.ll_.__`
+    ORDER BY Product_importance, d_time
+ ) 
+  
+  SELECT Mode_of_Shipment, d_time,  Count(d_time) as count
+  from `global-env-355411.ll_.__`
+  INNER JOIN CTE
+ on `global-env-355411.ll_.__`.id = CTE.id
+ Group by Mode_of_Shipment, d_time
+ ORDER BY count desc
