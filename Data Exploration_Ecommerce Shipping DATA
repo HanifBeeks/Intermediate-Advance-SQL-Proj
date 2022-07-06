@@ -1,3 +1,5 @@
+Skills USED: Partition BY, CTE, JOIN, Aggregate Functions
+
 Select * from `global-env-355411.ll_.__`;
 
 /* Select Data that we are going to be using */
