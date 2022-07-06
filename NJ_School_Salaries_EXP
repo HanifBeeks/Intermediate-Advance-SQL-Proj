@@ -33,5 +33,18 @@ Select Concat(first_name, ' ', last_name) as fullname, MAX(Salary) AS SALARY
 from `store-355510.123.123`
 GROUP BY fullname
 ORDER BY SALARY DESC
+
+-- Count of Employees from 0-5 years of Experience
+Select experience_total, Count(first_name)
+from `store-355510.123.123`
+Where experience_total IS NOT NULL
+GROUP BY experience_total
+;
+
+-- MAX SALARIES FOR 0-5 years of Experience
+Select experience_total, MAX(salary)
+from `store-355510.123.123`
+Where experience_total IS NOT NULL
+GROUP BY experience_total
 LIMIT 100
 
