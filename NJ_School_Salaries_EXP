@@ -1,0 +1,37 @@
+Skills USED: Nested Queries, Having, Aggregate Functions, Concat
+
+SELECT *
+from `store-355510.123.123`;
+
+--Count of each primary job in NJ
+Select primary_job, Count(primary_job)
+from `store-355510.123.123`
+GROUP BY primary_job;
+
+-- Average Salary for Each Job 
+Select primary_job, AVG(Salary)
+from `store-355510.123.123`
+GROUP BY primary_job
+HAVING AVG(SALARY) > 45000
+ORDER BY AVG(salary);
+
+-- AVERAGE SALARY FOR EVERY COUNTY
+Select County, salary, (Select Round(AVG(Salary)) from `store-355510.123.123`) as AllAVGSalary
+from `store-355510.123.123`;
+
+-- Analyzing the Average Salary for School Employees w/ 3+ years of Experience
+
+Select primary_job, Round(AVG(salary)), Count(experience_total)
+from `store-355510.123.123`
+Where experience_total IN (3,4,5)
+GROUP BY primary_job
+ORDER BY AVG(salary) desc
+;
+
+-- Top 100 Employees with the highest Salaries
+Select Concat(first_name, ' ', last_name) as fullname, MAX(Salary) AS SALARY
+from `store-355510.123.123`
+GROUP BY fullname
+ORDER BY SALARY DESC
+LIMIT 100
+
