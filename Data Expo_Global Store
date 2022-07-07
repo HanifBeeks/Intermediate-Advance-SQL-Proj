@@ -1,0 +1,58 @@
+Skills USED: CTE, CASE, JOIN, SubString
+
+select * from `data-exploration-355612.global_store.store`;
+
+-- FINDING THE OUT HOW MANY DAYS IT TOOK TO DELIVER THE ORDER
+select order_id, DATE_DIFF(ship_date, order_date, day) as delivery_days
+  from `data-exploration-355612.global_store.store`
+  order by delivery_days desc;
+
+-- USING SUBSTRING TO ONLY RETURN 9 CHARACTER UNIQUE CODE FOR EACH ORDER_ID
+  select SUBSTR(order_id, 9)
+  from `data-exploration-355612.global_store.store`;
+
+ 
+
+
+  -- CASE STATEMENT, RETURNING NON AND PROFITABLE SUB_CATEGORIES ALSO SALES IN EACH REGION
+  Select Sub_Category, Sales, Region,
+  CASE
+    WHEN Profit > 0 THEN 'PRODUCT IS PROFITABLE!'
+    WHEN PROFIT < 0 THEN 'PRODUCT IS NOT PROFITABLE!'
+    ELSE 'BREAK EVEN' 
+  END as profits
+  FROM `data-exploration-355612.global_store.store`
+;
+
+  -- CASE, Analyzing 1000 sub_cat with the most sales and profit globally.
+Select Sub_Category, Sales, Country,
+  CASE
+    WHEN Profit > 0 THEN 'PRODUCT IS PROFITABLE!'
+    ELSE 'Break Even' 
+  END as profits
+  FROM `data-exploration-355612.global_store.store`
+  Where Order_Priority IN ('Critical','High') and Quantity > 3
+  ORDER BY  PROFIT DESC
+  LIMIT 100;
+
+-- Case // Partition By Country
+SELECT Country, Sales, Profit, Sub_Category,
+Count(Country) OVER (PARTITION BY Country ORDER BY PROFIT desc), CASE
+    WHEN Profit > 0 THEN 'PRODUCT IS PROFITABLE!'
+    WHEN Profit < 0 THEN 'PRODUCT IS NOT PROFITABLE!'
+    ELSE 'Break Even' 
+  END as profits
+FROM `data-exploration-355612.global_store.store`
+Where Sub_Category = 'Copiers';
+
+WITH s AS (
+  SELECT order_id, EXTRACT(day FROM ship_date - Order_Date) as delivery_days
+  from `data-exploration-355612.global_store.store`
+ 
+)
+
+SELECT Sub_Category, delivery_days, Ship_Mode
+from `data-exploration-355612.global_store.store`
+INNER JOIN S
+USING(ORDER_ID)
+WHERE delivery_days >= 3 AND Country = 'United States' AND QUANTITY >= 3;
