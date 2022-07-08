@@ -1,0 +1,60 @@
+Skills Used: Aggregate Functions, Joins, Case, CTE
+
+
+select * from `hr.data_hr`;
+
+-- Count of Women and Men 
+SELECT Count(Gender)
+from `hr.data_hr`
+Group BY Gender;
+
+-- Average Monthly Rate Among Gender/Department
+SELECT Gender, Department, AVG(Round(MonthlyRate)) as sumM
+from `hr.data_hr`
+GROUP BY department, Gender
+Order BY sumM, Department
+;
+-- COUNT OF PERFORMANCE RATING BY EDUCATION LEVEL
+WITH s AS (
+Select EmployeeNumber, Education,
+CASE 
+  WHEN PERFORMANCERATING >= 3 THEN 'EMPLOYEE IS PERFORMING GREAT'
+  WHEN PERFORMANCERATING <= 2 THEN 'EMPLOYEE IS PERFORMING POORLY'
+  ELSE NULL END AS RATING, 
+CASE 
+  WHEN Education = 1 THEN 'BELOW COLLEGE'
+  WHEN EDUCATION = 2 THEN 'COLLEGE'
+  WHEN EDUCATION = 3 THEN 'MASTER'
+  WHEN EDUCATION = 4 THEN 'DOCTOR'
+  ELSE NULL END as Edu
+FROM `hr.data_hr` )
+
+
+SELECT edu, Count(PerformanceRating) AS COUNT_P
+FROM `hr.data_hr`
+INNER JOIN s
+ON `hr.data_hr`.EmployeeNumber = s.employeeNumber 
+Where PerformanceRating IN (3,4)
+GROUP BY edu
+ORDER BY COUNT_P DESC;
+
+
+-- Department Performance
+
+WITH s AS (
+Select EmployeeNumber, Education,
+CASE 
+  WHEN PERFORMANCERATING >= 3 THEN 'EMPLOYEE IS PERFORMING GREAT'
+  WHEN PERFORMANCERATING <= 2 THEN 'EMPLOYEE IS PERFORMING POORLY'
+  ELSE NULL END AS RATING, 
+
+FROM `hr.data_hr` )
+
+
+SELECT department, Count(PerformanceRating) AS COUNT_P
+FROM `hr.data_hr`
+INNER JOIN s
+ON `hr.data_hr`.EmployeeNumber = s.employeeNumber 
+
+GROUP BY Department
+ORDER BY COUNT_P DESC
